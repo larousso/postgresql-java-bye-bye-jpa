@@ -1,0 +1,3 @@
+CREATE DATABASE viking;
+CREATE USER viking WITH PASSWORD 'viking';
+GRANT ALL PRIVILEGES ON DATABASE "viking" to viking;
