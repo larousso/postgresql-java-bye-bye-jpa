@@ -274,7 +274,7 @@ from generate_series(200001, 400000, 1) as id
 
 insert into drakkar_json ("id", "json")
 select json.id, row_to_json(json.*) from
-    (select data.drakkar_id::text as "id", data.viking_id  as "chief_id", (select name from viking where id = data.viking_id) as "name"
+    (select data.drakkar_id::text as "id", data.viking_id  as "chief_id", (select name from viking_json where id = data.viking_id) as "name"
      from (
               select drakkar_id, (round(random()*400000))::text as viking_id
               from generate_series(1, 1000, 1) as drakkar_id
@@ -286,7 +286,6 @@ insert into viking_in_drakkar_json ("id", "viking_id", "drakkar_id")
 select id, round(random()*399999)+1, round(random()*999) + 1
 from generate_series(1, 2000000, 1) as id
 on conflict do nothing;
-
 
 
 

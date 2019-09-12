@@ -1,7 +1,6 @@
 package demo;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import io.vavr.API;
 import io.vavr.collection.List;
 import io.vavr.jackson.datatype.VavrModule;
 import io.vertx.core.json.Json;
@@ -12,6 +11,7 @@ import io.vertx.sqlclient.PoolOptions;
 import lombok.Data;
 
 import java.time.LocalDate;
+import static io.vavr.API.*;
 
 public class App {
     public static void main(String[] args) {
@@ -28,22 +28,19 @@ public class App {
                     .setPassword("viking"),
                 new PoolOptions().setMaxSize(5));
 
-        List<Drakkar> drakkars = client.rxQuery("""
-                    select
-                        row_to_json(d.*)::jsonb ||
-                        json_build_object('members', array_agg(row_to_json(v.*)))::jsonb
-                    from drakkar d
-                    join viking_in_drakkar vdk on d.id = vdk.viking_id
-                    join viking v on v.id = vdk.drakkar_id
-                    where v.name = 'Aasvard'
-                    group by d.*
-                    """)
+        var drakkars = client
+                .rxPreparedQuery("""
+
+                    """
+                )
                 .map(rows ->
-                    List.ofAll(rows).map(r -> r.get(JsonObject.class, 0).mapTo(Drakkar.class))
+                    List.ofAll(rows).map(r ->
+                            r.get(JsonObject.class, 0)
+                    ).map(json -> json.mapTo(Drakkar.class))
                 )
                 .blockingGet();
 
-        API.println(drakkars.mkString("\n"));
+        println(drakkars.mkString("\n"));
     }
 
     @Data
@@ -60,6 +57,7 @@ public class App {
     public static class Drakkar {
         String id;
         String name;
+        Viking chief;
         List<Viking> members;
     }
 
