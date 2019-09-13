@@ -30,7 +30,13 @@ public class App {
 
         var drakkars = client
                 .rxPreparedQuery("""
-
+                    select d.json::jsonb || json_build_object('chief', chief.json)::jsonb || json_build_object('members', array_agg(v.json))::jsonb
+                    from drakkar_json d
+                    join viking_json chief on chief.id = d.json ->> 'chief_id'
+                    join viking_in_drakkar_json vdk on d.id = vdk.viking_id
+                    join viking_json v on v.id = vdk.drakkar_id
+                    where v.json @> '{"name":"Aasvard"}'
+                    group by d.json, chief.json
                     """
                 )
                 .map(rows ->
