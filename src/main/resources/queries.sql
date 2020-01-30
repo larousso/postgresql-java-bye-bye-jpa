@@ -24,6 +24,17 @@ join viking v on v.id = vdk.drakkar_id
 where v.name = 'Aasvard'
 group by d.*;
 
+select
+        row_to_json(d.*)::jsonb ||
+        json_build_object('members',
+                          array(select row_to_json(v.*)
+                                from viking_in_drakkar vdk
+                                         join viking v on v.id = vdk.drakkar_id
+                                where d.id = vdk.viking_id
+                              ))::jsonb
+from drakkar d
+limit 10;
+
 -- jointure 2
 with drak as (
     select *
