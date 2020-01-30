@@ -13,8 +13,8 @@ plugins {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_HIGHER
-    targetCompatibility = JavaVersion.VERSION_HIGHER
+    sourceCompatibility = JavaVersion.toVersion("13")
+    targetCompatibility = JavaVersion.toVersion("13")
 }
 
 tasks.withType<JavaCompile> {
