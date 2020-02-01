@@ -34,18 +34,35 @@ public class App {
                         .setUser("viking")
                         .setPassword("viking"),
                 new PoolOptions().setMaxSize(5));
-//
+
         var results = client
                 .rxPreparedQuery("""
+                        select d.json::jsonb || json_build_object('chief', chief.json)::jsonb || json_build_object('members', array_agg(v.json))::jsonb
+                        from drakkar_json d
+                        join viking_json chief on chief.id = d.json ->> 'chief_id'
+                        join viking_in_drakkar_json vdk on d.id = vdk.viking_id
+                        join viking_json v on v.id = vdk.drakkar_id
+                        where v.json @> '{"name":"Aasvard"}'
+                        group by d.json, chief.json
                         """
                 )
                 .map(rows -> List.ofAll(rows)
                     .map(r ->
-                        r.get(JsonObject.class, 0).mapTo(Viking.class)
+                        r.get(JsonObject.class, 0).mapTo(Drakkar.class)
                     )
                 )
                 .blockingGet();
         println(results.mkString("\n"));
+
+//        client.rxPreparedQuery("""
+//                        insert into viking_json(id, json) values($1, $2::jsonb)
+//                        """,
+//                        Tuple.of(
+//                                "2000000000",
+//                                JsonObject.mapFrom(new Viking("2000000000", "Touraine Tech", "Aasvard", "M", 1, LocalDate.now()))
+//                        )
+//                ).blockingGet();
+//                System.out.println("Done");
 
         client.close();
     }
