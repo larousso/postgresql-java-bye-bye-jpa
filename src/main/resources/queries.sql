@@ -59,3 +59,29 @@ join viking_in_drakkar_json vdk on d.id = vdk.viking_id
 join viking_json v on v.id = vdk.drakkar_id
 where v.json @> '{"name":"Aasvard"}'
 group by d.json, chief.json;
+
+-- jointure json v2
+select
+        d.json ||
+        json_build_object('members',
+                          array(select v.json
+                                from viking_in_drakkar_json vdk
+                                 join viking_json v on v.id = vdk.drakkar_id
+                                where d.id = vdk.viking_id
+                              ))::jsonb
+from drakkar_json d
+limit 10;
+
+
+-- jointure json v3
+select
+            d.json ||
+            json_build_object('chief', (select v.json from viking_json v where d.json ->> 'chief_id' = v.id ))::jsonb ||
+            json_build_object('members',
+                              array(select v.json
+                                    from viking_in_drakkar_json vdk
+                                             join viking_json v on v.id = vdk.drakkar_id
+                                    where d.id = vdk.viking_id
+                                  ))::jsonb
+from drakkar_json d
+limit 10;

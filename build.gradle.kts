@@ -6,6 +6,7 @@
  * User Manual available at https://docs.gradle.org/5.5.1/userguide/tutorial_java_projects.html
  */
 plugins {
+    maven
     // Apply the java plugin to add support for Java
     java
     // Apply the application plugin to add support for building a CLI application
@@ -13,17 +14,11 @@ plugins {
 }
 
 java {
-    sourceCompatibility = JavaVersion.toVersion("13")
-    targetCompatibility = JavaVersion.toVersion("13")
-}
-
-tasks.withType<JavaCompile> {
-    options.compilerArgs.add("--enable-preview")
+    sourceCompatibility = JavaVersion.toVersion("15")
+    targetCompatibility = JavaVersion.toVersion("15")
 }
 
 repositories {
-    // Use jcenter for resolving dependencies.
-    // You can declare any Maven/Ivy/file repository here.
     jcenter()
 }
 
@@ -42,15 +37,6 @@ dependencies {
     testImplementation("junit:junit:4.12")
 }
 
-
-tasks.wrapper {
-    distributionType = Wrapper.DistributionType.ALL
-}
-
-
-tasks.named<JavaExec>("run") {
-    jvmArgs = listOf("--enable-preview")
-}
 application {
     // Define the main class for the application
     mainClassName = "demo.App"

@@ -29,21 +29,25 @@ public class App {
 
         var client = PgPool.pool(new PgConnectOptions()
                         .setPort(5432)
+                        .setDatabase("postgres")
                         .setHost("localhost")
-                        .setDatabase("viking")
                         .setUser("viking")
                         .setPassword("viking"),
                 new PoolOptions().setMaxSize(5));
 
         var results = client
                 .rxPreparedQuery("""
-                        select d.json::jsonb || json_build_object('chief', chief.json)::jsonb || json_build_object('members', array_agg(v.json))::jsonb
-                        from drakkar_json d
-                        join viking_json chief on chief.id = d.json ->> 'chief_id'
-                        join viking_in_drakkar_json vdk on d.id = vdk.viking_id
-                        join viking_json v on v.id = vdk.drakkar_id
-                        where v.json @> '{"name":"Aasvard"}'
-                        group by d.json, chief.json
+                        select
+                            row_to_json(d)::jsonb ||
+                            json_build_object('members',
+                                              array(select row_to_json(v)
+                                                    from viking_in_drakkar vdk
+                                                     join viking v on v.id = vdk.drakkar_id
+                                                    where d.id = vdk.viking_id
+                                                  ))::jsonb
+                        from drakkar d
+                        offset 20
+                        limit 10;
                         """
                 )
                 .map(rows -> List.ofAll(rows)
@@ -59,7 +63,7 @@ public class App {
 //                        """,
 //                        Tuple.of(
 //                                "2000000000",
-//                                JsonObject.mapFrom(new Viking("2000000000", "Touraine Tech", "Aasvard", "M", 1, LocalDate.now()))
+//                                JsonObject.mapFrom(new Viking("2000000000", "Lodbrok", "Ragnar", "M", 1, LocalDate.now()))
 //                        )
 //                ).blockingGet();
 //                System.out.println("Done");
