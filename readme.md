@@ -108,6 +108,54 @@ select
 from drakkar d
 limit 10;
 ```
+Dans le code 
+
+```java
+var results = client
+                .rxPreparedQuery("""
+                        select
+                            row_to_json(d)::jsonb ||
+                            json_build_object('members',
+                                              array(select row_to_json(v)
+                                                    from viking_in_drakkar vdk
+                                                     join viking v on v.id = vdk.drakkar_id
+                                                    where d.id = vdk.viking_id
+                                                  ))::jsonb
+                        from drakkar d
+                        offset 20
+                        limit 10;
+                        """
+                )
+                .map(rows -> List.ofAll(rows)
+                    .map(r ->
+                        r.get(JsonObject.class, 0).mapTo(Drakkar.class)
+                    )
+                )
+                .blockingGet();
+        println(results.mkString("\n"));
+```
+
+#### Insert de données à partir d'un json 
+
+```sql
+insert into viking
+select *
+from json_populate_recordset(null::viking, '[
+  {"id":"1000000","name":"Bragi","lastName":"Kolson","gender":"M","numberOfBattles":11,"birthDate":"0855-10-01"},
+  {"id":"1000001","name":"Bragi","lastName":"Kolson","gender":"M","numberOfBattles":11,"birthDate":"0855-10-01"}
+]');
+```
+Dans le code 
+
+```java 
+client.rxPreparedQuery("""
+               insert into viking
+               select *
+               from json_populate_record(null::viking, $1);
+                """,
+                Tuple.of(JsonObject.mapFrom(new Viking(UUID.randomUUID().toString(), "Lodbrok", "Ragnar", "M", 4, LocalDate.now())))
+        );
+```
 
 ### Modèle de données json 
 
