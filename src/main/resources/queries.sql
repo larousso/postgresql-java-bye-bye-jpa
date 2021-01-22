@@ -48,6 +48,14 @@ from drak d
 group by d.*;
 
 
+-- Insert json
+insert into viking
+select *
+from json_populate_recordset(null::viking, '[
+  {"id":"1000000","name":"Bragi","lastName":"Kolson","gender":"M","numberOfBattles":11,"birthDate":"0855-10-01"},
+  {"id":"1000001","name":"Bragi","lastName":"Kolson","gender":"M","numberOfBattles":11,"birthDate":"0855-10-01"}
+]');
+
 -------------- JSON --------------
 
 -- jointure 1 json

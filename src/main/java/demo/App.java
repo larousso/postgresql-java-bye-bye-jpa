@@ -6,6 +6,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.vavr.collection.List;
 import io.vavr.jackson.datatype.VavrModule;
 import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.pgclient.PgConnectOptions;
 import io.vertx.reactivex.pgclient.PgPool;
@@ -16,6 +17,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 import static io.vavr.API.*;
 
@@ -59,14 +61,35 @@ public class App {
         println(results.mkString("\n"));
 
 //        client.rxPreparedQuery("""
-//                        insert into viking_json(id, json) values($1, $2::jsonb)
+//                       insert into viking
+//                       select *
+//                       from json_populate_record(null::viking, $1);
+//                        """,
+//                        Tuple.of(JsonObject.mapFrom(new Viking(UUID.randomUUID().toString(), "Lodbrok", "Ragnar", "M", 4, LocalDate.now())))
+//                ).blockingGet();
+
+//        client.rxPreparedQuery("""
+//                       insert into viking
+//                       select *
+//                       from json_populate_recordset(null::viking, $1);
 //                        """,
 //                        Tuple.of(
-//                                "2000000000",
-//                                JsonObject.mapFrom(new Viking("2000000000", "Lodbrok", "Ragnar", "M", 1, LocalDate.now()))
+//                                new JsonArray(List.of(
+//                                    JsonObject.mapFrom(new Viking(UUID.randomUUID().toString(), "Lodbrok", "Ragnar", "M", 4, LocalDate.now())),
+//                                    JsonObject.mapFrom(new Viking(UUID.randomUUID().toString(), "Lodbrok", "Ragnar", "M", 5, LocalDate.now()))
+//                                ).toJavaList())
 //                        )
 //                ).blockingGet();
-//                System.out.println("Done");
+//
+//        client.rxPreparedQuery("""
+//                        insert into viking_json(id, json) values($1, $2::jsonb)
+//                        """,
+//                Tuple.of(
+//                        "2000000000",
+//                        JsonObject.mapFrom(new Viking("2000000000", "Lodbrok", "Ragnar", "M", 1, LocalDate.now()))
+//                )
+//        ).blockingGet();
+        System.out.println("Done");
 
         client.close();
     }
