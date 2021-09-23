@@ -289,10 +289,11 @@ from generate_series(1, 2000000, 1) as id
 on conflict do nothing;
 
 
-drop table viking_in_drakkar;
-drop table drakkar;
-drop table viking;
 
-drop table viking_in_drakkar_json;
-drop table drakkar_json;
-drop table viking_json;
+-- drop table viking_in_drakkar;
+-- drop table drakkar;
+-- drop table viking;
+--
+-- drop table viking_in_drakkar_json;
+-- drop table drakkar_json;
+-- drop table viking_json;
