@@ -152,6 +152,7 @@ create table IF NOT EXISTS viking_json (
 
 CREATE INDEX viking_json_idx ON viking_json using gin (json);
 
+CREATE INDEX viking_json_lastname_idx ON viking_json ((json ->> 'name'));
 
 create table IF NOT EXISTS drakkar_json(
     "id" text primary key,

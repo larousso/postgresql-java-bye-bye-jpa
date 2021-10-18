@@ -56,6 +56,17 @@ from json_populate_recordset(null::viking, '[
   {"id":"1000001","name":"Bragi","lastName":"Kolson","gender":"M","numberOfBattles":11,"birthDate":"0855-10-01"}
 ]');
 
+-- Upsert json
+insert into viking
+select *
+from json_populate_record(null::viking, '{"id": "1", "name": "Test", "lastName": "Test", "gender": "M", "numberOfBattles": 4, "birthDate": "2021-10-18"}')
+on conflict ("id") do update
+set ("id" ,"name" ,"lastName" ,"gender" ,"numberOfBattles" ,"birthDate") =
+(
+    select "id" ,"name" ,"lastName" ,"gender" ,"numberOfBattles" ,"birthDate"
+    from json_populate_record(null::viking, '{"id": "1", "name": "Test", "lastName": "Test", "gender": "M", "numberOfBattles": 4, "birthDate": "2021-10-18"}')
+);
+
 -------------- JSON --------------
 
 -- jointure 1 json

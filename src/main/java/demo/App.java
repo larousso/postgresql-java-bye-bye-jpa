@@ -55,10 +55,18 @@ public class App {
 //                 """
 //        ).execute(Tuple.of(
 //                JsonObject.mapFrom(
-//                        new Viking(UUID.randomUUID().toString(), "Lodbrok", "Ragnar", "M", 4, LocalDate.now())
+//                        new Viking(
+//                                UUID.randomUUID().toString(),
+//                                "Devfest",
+//                                "Nantes",
+//                                "M",
+//                                4,
+//                                LocalDate.now()
+//                        )
 //                )
 //        )).toCompletionStage().toCompletableFuture().join();
-//
+
+
 //        client.preparedQuery("""
 //                insert into viking
 //                select *
@@ -68,6 +76,29 @@ public class App {
 //                new JsonArray(List.of(
 //                        JsonObject.mapFrom(new Viking(UUID.randomUUID().toString(), "Lodbrok", "Ragnar", "M", 4, LocalDate.now())),
 //                        JsonObject.mapFrom(new Viking(UUID.randomUUID().toString(), "Lodbrok", "Ragnar", "M", 5, LocalDate.now()))
+//                ))
+//        )).toCompletionStage().toCompletableFuture().join();
+//
+//        client.preparedQuery("""
+//                insert into viking
+//                select *
+//                from json_populate_record(null::viking, $1)
+//                on conflict ("id") do update
+//                set ("id" ,"name" ,"lastName" ,"gender" ,"numberOfBattles" ,"birthDate") =
+//                (
+//                    select
+//                        "id" ,"name" ,"lastName" ,"gender" ,"numberOfBattles" ,"birthDate"
+//                    from json_populate_record(null::viking, $1)
+//                );
+//                 """
+//        ).execute(Tuple.of(JsonObject.mapFrom(
+//                new Viking(
+//                        "1",
+//                        "Lodbrok",
+//                        "Ragnar",
+//                        "M",
+//                        4,
+//                        LocalDate.now()
 //                ))
 //        )).toCompletionStage().toCompletableFuture().join();
 //
