@@ -1,5 +1,5 @@
 create table IF NOT EXISTS viking (
-    "id" text primary key,
+    "id" varchar(100) primary key,
     "name" text,
     "lastName" text,
     "gender" text,
@@ -7,22 +7,28 @@ create table IF NOT EXISTS viking (
     "birthDate" date
 );
 
-create index viking_name_idx on viking("name");
+create index IF NOT EXISTS viking_name_idx on viking("name");
+create index IF NOT EXISTS viking_id_idx on viking("id");
 
 create table IF NOT EXISTS drakkar(
-    "id" text primary key,
+    "id" varchar(100) primary key,
     "name" text,
     "chief_id" text references viking("id")
 );
-
+create index IF NOT EXISTS drakkar_id_idx on drakkar("id");
+create index IF NOT EXISTS drakkar_name_idx on drakkar("name");
 
 create table IF NOT EXISTS viking_in_drakkar(
-    "id" text primary key,
-    "viking_id" text references viking(id),
-    "drakkar_id" text references drakkar(id),
-    unique("viking_id", "drakkar_id")
+    "id" varchar(100) primary key,
+    "viking_id" varchar(100),
+    "drakkar_id" varchar(100),
+    unique("viking_id", "drakkar_id"),
+    foreign key ("viking_id") references viking(id),
+    foreign key ("drakkar_id") references drakkar(id)
 );
 
+create index  IF NOT EXISTS viking_in_drakkar_viking_id on viking_in_drakkar("viking_id");
+create index  IF NOT EXISTS viking_in_drakkar_drakkar_id on viking_in_drakkar("drakkar_id");
 
 insert into viking ("id", "gender", "name",  "lastName", "numberOfBattles", "birthDate")
 select
@@ -136,9 +142,8 @@ from (
 
 insert into viking_in_drakkar ("id", "viking_id", "drakkar_id")
 select id, round(random()*399999)+1, round(random()*999) + 1
-from generate_series(1, 2000000, 1) as id
+from generate_series(1, 10000, 1) as id
 on conflict do nothing;
-
 
 -------------------------------------------------------------------------------------------------------------
 ----------------------------                  JSON                   ----------------------------------------
@@ -146,7 +151,7 @@ on conflict do nothing;
 
 
 create table IF NOT EXISTS viking_json (
-    id text primary key,
+    id varchar(100) primary key,
     json jsonb not null
 );
 
@@ -155,17 +160,19 @@ CREATE INDEX viking_json_idx ON viking_json using gin (json);
 CREATE INDEX viking_json_lastname_idx ON viking_json ((json ->> 'name'));
 
 create table IF NOT EXISTS drakkar_json(
-    "id" text primary key,
+    "id" varchar(100) primary key,
     json jsonb not null
 );
 
 CREATE INDEX drakkar_json_idx ON drakkar_json using gin (json);
 
 create table IF NOT EXISTS viking_in_drakkar_json(
-    "id" text primary key,
-    "viking_id" text references viking_json(id),
-    "drakkar_id" text references drakkar_json(id),
-    unique("viking_id", "drakkar_id")
+    "id" varchar(100) primary key,
+    "viking_id" varchar(100),
+    "drakkar_id" varchar(100),
+    unique("viking_id", "drakkar_id"),
+    foreign key ("viking_id") references viking_json(id),
+    foreign key ("drakkar_id") references drakkar_json(id)
 );
 
 
@@ -286,7 +293,7 @@ on conflict do nothing ;
 
 insert into viking_in_drakkar_json ("id", "viking_id", "drakkar_id")
 select id, round(random()*399999)+1, round(random()*999) + 1
-from generate_series(1, 2000000, 1) as id
+from generate_series(1, 10000, 1) as id
 on conflict do nothing;
 
 
